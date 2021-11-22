@@ -31,7 +31,8 @@ export default {
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
     // https://go.nuxtjs.dev/tailwindcss
-    '@nuxtjs/tailwindcss'
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/firebase'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -54,5 +55,60 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+  },
+
+  hooks: {
+    generate: {
+      async done (builder) {
+        // This makes sure nuxt generate does finish without running into a timeout issue.
+        // See https://github.com/nuxt-community/firebase-module/issues/93
+        const appModule = await import('./.nuxt/firebase/app.js')
+        const { session } = await appModule.default(
+          builder.options.firebase.config,
+          {
+            res: null
+          }
+        )
+        try {
+          session.database().goOffline()
+        } catch (e) {}
+        try {
+          session.firestore().terminate()
+        } catch (e) {}
+      }
+    }
+  },
+
+  firebase: {
+    lazy: false,
+    config: {
+      apiKey: process.env.K_FIREBASE_API_KEY,
+      authDomain: process.env.K_FIREBASE_AUTH_DOMAIN,
+      databaseURL: process.env.K_FIREBASE_DATABASE_URL,
+      projectId: process.env.K_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.K_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.K_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.K_FIREBASE_APP_ID,
+      measurementId: process.env.K_FIREBASE_MEASUREMENT_ID,
+      fcmPublicVapidKey: process.env.K_FIREBASE_PUBLIC_KEY
+    },
+    services: {
+      auth: {
+        initialize: {
+          onAuthStateChangedAction: 'onAuthStateChanged'
+        },
+        ssr: true
+        // emulatorPort: process.env.NODE_ENV === 'development' ? 9099 : false,
+      },
+      firestore: true,
+      functions: true,
+      storage: true,
+      database: true,
+      messaging: true,
+      performance: true,
+      analytics: true,
+      remoteConfig: true
+    },
+    onFirebaseHosting: false
   }
 }
