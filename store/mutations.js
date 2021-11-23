@@ -10,6 +10,5 @@ export default {
 			uid: authUser.uid,
 			email: authUser.email
 		}
-		console.log('data user', state.authUser)
 	}
 }

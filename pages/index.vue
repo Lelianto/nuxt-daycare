@@ -26,14 +26,16 @@
             />
           </template>
         </el-input>
-        <el-button class="w-full border-sm bg-gray-400 text-white cursor-pointer" type="info">
+        <el-button class="w-full border-sm bg-gray-400 text-white cursor-pointer" type="info" @click="signInUser">
           Masuk
         </el-button>
         <div v-if="form.error" class="text-left text-sm text-red-500 mt-2 cursor-pointer">
           {{ form.error }}
         </div>
-        <div class="text-left mt-3 text-base text-blue-800 cursor-pointer">
-          Daftar
+        <div class="text-left mt-3 text-base text-blue-800">
+          <span class="cursor-pointer" @click="$router.push('/register')">
+            Daftar
+          </span>
         </div>
       </div>
     </div>
@@ -70,7 +72,7 @@ export default {
 				await this.$fire.auth.signInWithEmailAndPassword(this.form.email, this.form.password).then(async (res) => {
 					const uid = await res.user._delegate.uid
 					if (uid) {
-						await this.getUserProfile(uid)
+						this.$router.push(`/home/${uid}`)
 					} else {
 						this.form.error = 'Pengguna tidak ditemukan'
 					}
@@ -82,14 +84,3 @@ export default {
 	}
 }
 </script>
-
-<style lang="scss">
-.eye {
-	.el-input-group__prepend {
-		min-width: 50px;
-		max-width: 50px;
-		padding: 0 !important;
-		text-align: center;
-	}
-}
-</style>

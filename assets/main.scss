@@ -1,3 +1,8 @@
-.start {
-  font-size: 20px;
+.eye {
+	.el-input-group__prepend {
+		min-width: 50px;
+		max-width: 50px;
+		padding: 0 !important;
+		text-align: center;
+	}
 }
