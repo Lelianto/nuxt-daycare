@@ -83,6 +83,9 @@ export default {
 		},
 		toRad (value) {
 			return value * Math.PI / 180
+		},
+		async logout () {
+			try { await this.$fire.auth.signOut() } catch (e) { alert(e) }
 		}
 	}
 }

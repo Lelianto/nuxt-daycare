@@ -35,7 +35,7 @@
       </div>
       <div class="block w-full">
         <div class="demonstration mt-3 mb-2">
-          Pilih Tanggal
+          {{ userData.userType && userData.userType === 'seeker' ? 'Pesan Jadwal Layanan' : 'Buat Jadwal Layanan' }}
         </div>
         <div class="w-full">
           <el-date-picker
@@ -54,6 +54,14 @@
           </div>
         </div>
       </div>
+      <div v-if="userData.userType && userData.userType === 'owner'" class="text-base mb-2 mt-3">
+        Masukkan Biaya Layanan per Hari
+      </div>
+      <el-input v-if="userData.userType && userData.userType === 'owner'" v-model="form.servicePrice" class="w-full eye" type="number" placeholder="Masukkan Harga Layanan">
+        <template slot="prepend">
+          Rp
+        </template>
+      </el-input>
       <div class="text-base mb-2 mt-3">
         {{ userData.userType && userData.userType === 'seeker' ? 'Masukkan Jumlah Anak' : 'Masukkan Kapasitas Anak Daycare' }}
       </div>
@@ -93,6 +101,7 @@ export default {
 				numOfChildrens: 1,
 				dayCarePics: '',
 				dayCareName: '',
+				servicePrice: 0,
 				error: ''
 			},
 			showDate: [],
@@ -124,7 +133,8 @@ export default {
 		}
 	},
 	watch: {
-		address (next) {
+		'form.address' (next) {
+			console.log(next)
 			if (next.length > 20) {
 				this.getLongLat()
 			}
@@ -193,7 +203,8 @@ export default {
 						address: this.form.address,
 						numOfChildrens: this.form.numOfChildrens,
 						dayCareName: this.form.dayCareName,
-						dayCarePics: this.form.dayCarePics
+						dayCarePics: this.form.dayCarePics,
+						servicePrice: this.form.servicePrice
 					}
 				}
 				const database = this.$fire.firestore
@@ -209,7 +220,12 @@ export default {
 							numOfChildrens: 1,
 							error: ''
 						}
-						await this.$router.push(`/products/${this.$route.params.id}`)
+
+						if (this.userData.userType === 'owner') {
+							await this.$router.push(`/dashboard/${this.$route.params.id}`)
+						} else {
+							await this.$router.push(`/products/${this.$route.params.id}`)
+						}
 					})
 			} catch (e) {
 				this.form.error = 'Terjadi kesalahan sistem, silakan perbarui halaman'
@@ -221,6 +237,7 @@ export default {
 		async getLongLat () {
 			await this.$axios.$get(`https://nominatim.openstreetmap.org/search.php?q=${this.form.address}&format=jsonv2`)
 				.then((res) => {
+					console.log('res alamat', res)
 					if (res.length !== 0) {
 						this.form.longitude = res[0].lon
 						this.form.latitude = res[0].lat
