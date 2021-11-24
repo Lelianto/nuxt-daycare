@@ -46,11 +46,15 @@ export default {
 		// https://go.nuxtjs.dev/axios
 		'@nuxtjs/axios',
 		// https://go.nuxtjs.dev/pwa
-		'@nuxtjs/pwa'
+		'@nuxtjs/pwa',
+		['nuxt-leaflet', { /* module options */ }],
+		'@nuxtjs/axios'
 	],
 
 	// Axios module configuration: https://go.nuxtjs.dev/config-axios
-	axios: {},
+	axios: {
+		proxy: true
+	},
 
 	// PWA module configuration: https://go.nuxtjs.dev/pwa
 	pwa: {

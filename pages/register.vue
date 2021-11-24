@@ -99,7 +99,38 @@ export default {
 	},
 	methods: {
 		async signUpUser () {
-
+			try {
+				await this.$fire.auth.createUserWithEmailAndPassword(this.form.email, this.form.password).then(async (res) => {
+					const uid = await res.user._delegate.uid
+					if (uid) {
+						await this.postUserProfile(uid)
+					} else {
+						this.form.error = 'Pengguna tidak ditemukan'
+					}
+				})
+			} catch (e) {
+				this.form.error = 'Terjadi kesalahan sistem, silakan perbarui halaman'
+			}
+		},
+		async postUserProfile (id) {
+			try {
+				const data = {
+					fullName: this.form.fullName,
+					phoneNumber: this.form.phoneNumber,
+					email: this.form.email,
+					address: this.form.address,
+					userType: this.form.userType
+				}
+				const database = this.$fire.firestore
+				await database.collection('users')
+					.doc(id)
+					.set(data)
+					.then(async () => {
+						await this.$router.push(`/home/${id}`)
+					})
+			} catch (e) {
+				this.form.error = 'Terjadi kesalahan sistem, silakan perbarui halaman'
+			}
 		}
 	}
 }

@@ -6,3 +6,17 @@
 		text-align: center;
 	}
 }
+
+.date-size {
+	.el-input__inner { 
+		width: 100% !important;
+	}
+}
+
+.date-size.el-input {
+	width: 100% !important;
+}
+
+.counter.el-input-number {
+	width: 100% !important;
+}
