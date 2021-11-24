@@ -33,7 +33,8 @@ export default {
 		// https://go.nuxtjs.dev/tailwindcss
 		'@nuxtjs/tailwindcss',
 		'@nuxtjs/firebase',
-		'@nuxtjs/fontawesome'
+		'@nuxtjs/fontawesome',
+		['@nuxtjs/moment', { locales: ['id'] }]
 	],
 	fontawesome: {
 		icons: {

@@ -1,7 +1,23 @@
 <template>
   <div class="w-full">
     <div class="lg:container mx-4 flex flex-col gap-2 py-2">
-      <el-input v-model="form.address" class="w-full eye mt-6" placeholder="Masukkan Lokasi Pencarian Daycare">
+      <el-input v-if="userData.userType && userData.userType === 'owner'" v-model="form.dayCareName" class="w-full eye mt-6" placeholder="Masukkan Nama Daycare">
+        <template slot="prepend">
+          <font-awesome-icon :icon="['fas', 'user']" />
+        </template>
+      </el-input>
+      <input
+        v-if="userData.userType && userData.userType === 'owner'"
+        id="daycare"
+        ref="daycare"
+        class="mt-3"
+        type="file"
+        @change="getLocalPhoto($event)"
+      >
+      <div v-if="form.dayCarePics" class="box-photo">
+        <img :src="form.dayCarePics" alt="">
+      </div>
+      <el-input v-model="form.address" class="w-full eye mt-3" :placeholder="userData.userType && userData.userType === 'seeker' ? 'Masukkan Lokasi Pencarian Daycare' : 'Masukkan Lokasi Daycare'">
         <template slot="prepend">
           <font-awesome-icon :icon="['fas', 'map-marker-alt']" />
         </template>
@@ -31,10 +47,23 @@
           />
         </div>
       </div>
-      <div class="text-base mb-2 mt-3">
-        Masukkan Jumlah Anak
+      <div class="flex flex-wrap justify">
+        <div v-for="(date, index) in showDate" :key="`key-date-${index}`">
+          <div class="bg-gray-500 text-xs rounded p-2 m-2 text-white">
+            {{ date }} <span class="cursor-pointer" @click="deleteDate(index)">&#x2715;</span>
+          </div>
+        </div>
       </div>
-      <el-input-number v-model="form.numOfChildrens" class="counter mb-6" :min="1" :max="10" @change="handleChange" />
+      <div class="text-base mb-2 mt-3">
+        {{ userData.userType && userData.userType === 'seeker' ? 'Masukkan Jumlah Anak' : 'Masukkan Kapasitas Anak Daycare' }}
+      </div>
+      <el-input-number
+        v-model="form.numOfChildrens"
+        class="counter mb-6"
+        :min="1"
+        :max="10"
+        @change="handleChange"
+      />
       <el-button class="w-full border-sm bg-gray-400 text-white cursor-pointer" type="info" @click="updateDataSeeker">
         Masuk
       </el-button>
@@ -59,10 +88,14 @@ export default {
 				latitude: '',
 				longitude: '',
 				date1: '',
+				ownerDate: [],
 				address: '',
 				numOfChildrens: 1,
+				dayCarePics: '',
+				dayCareName: '',
 				error: ''
 			},
+			showDate: [],
 			pickerOptions: {
 				disabledDate (time) {
 					return time.getTime() < Date.now() - 8.64e7
@@ -95,6 +128,16 @@ export default {
 			if (next.length > 20) {
 				this.getLongLat()
 			}
+		},
+		'form.date1' (next) {
+			if (next && this.userData.userType && this.userData.userType === 'owner') {
+				const formatDate = this.$moment(next).format('DD-MM-YYYY')
+				if (!this.showDate.includes(formatDate)) {
+					this.form.ownerDate.push(next)
+					this.showDate.push(formatDate)
+				}
+				this.form.date1 = ''
+			}
 		}
 	},
 	async mounted () {
@@ -106,6 +149,28 @@ export default {
 		}
 	},
 	methods: {
+		getLocalPhoto (e) {
+			this.uploadDaycarePhoto(this.$route.params.id, e.target.files[0])
+		},
+		async uploadDaycarePhoto (id, file) {
+			const storageRef = this.$fire.storage.ref('daycare').child(`${id || 'dev'}/${file.name}`)
+			await storageRef.put(file).then(async (snapshot) => {
+				await this.getFileUrl(id, file.name)
+			}).catch((error) => {
+				throw new Error(error)
+			})
+		},
+		async getFileUrl (id, name) {
+			const storageRef = this.$fire.storage.ref('daycare').child(`${id}`).child(`${name}`)
+			await storageRef.getDownloadURL().then((response) => {
+				this.form.dayCarePics = response
+				console.log('response', response)
+			})
+		},
+		deleteDate (index) {
+			this.showDate.splice(index, 1)
+			this.form.ownerDate.splice(index, 1)
+		},
 		async updateDataSeeker () {
 			if (!this.$route.params.id) {
 				this.logout()
@@ -113,12 +178,23 @@ export default {
 			}
 
 			try {
-				const data = {
+				let data = {
 					latitude: this.form.latitude,
 					longitude: this.form.longitude,
 					date1: this.form.date1,
 					address: this.form.address,
 					numOfChildrens: this.form.numOfChildrens
+				}
+				if (this.userData.userType === 'owner') {
+					data = {
+						latitude: this.form.latitude,
+						longitude: this.form.longitude,
+						ownerDate: this.form.ownerDate,
+						address: this.form.address,
+						numOfChildrens: this.form.numOfChildrens,
+						dayCareName: this.form.dayCareName,
+						dayCarePics: this.form.dayCarePics
+					}
 				}
 				const database = this.$fire.firestore
 				await database.collection('user_informations')
