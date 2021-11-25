@@ -80,7 +80,7 @@
       <div class="flex flex-wrap justify">
         <div v-for="(date, index) in showDate" :key="`key-date-${index}`">
           <div class="bg-gray-500 text-xs rounded p-2 m-2 text-white">
-            {{ date }} - {{ form.capOfChildrens && form.capOfChildrens[index] }} - Rp{{ form.servicePrice && form.servicePrice[index] }} <span class="cursor-pointer" @click="deleteDate(index)">&#x2715;</span>
+            {{ date }} - {{ form.capOfChildrens && form.capOfChildrens[index] }} - Rp {{ (form.servicePrice && form.servicePrice[index]) | formatMoney }} <span class="cursor-pointer" @click="deleteDate(index)">&#x2715;</span>
           </div>
         </div>
       </div>

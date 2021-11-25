@@ -1,6 +1,24 @@
 <template>
-  <div>
-    Products
+  <div v-if="daycares.length !== 0" class="w-full mt-6">
+    <div v-for="(daycare, index) in daycares" :key="`key-product-${index}`" class="lg:container mx-4 flex flex-row gap-2 p-2 border-2 rounded-md">
+      <div class="box-photo-product">
+        <img :src="daycare.dayCarePics" alt="">
+      </div>
+      <div class="relative w-full">
+        <div class="font-bold">
+          {{ daycare.dayCareName }}
+        </div>
+        <div class="text-sm">
+          {{ daycare.address }}
+        </div>
+        <div class="font-semibold">
+          Rp {{ daycare.servicePrice[0] | formatMoney }} / hari
+        </div>
+        <el-button class="w-1/2 border-sm bg-gray-400 text-white cursor-pointer order-button absolute bottom-0 right-0" type="info">
+          Pesan
+        </el-button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -67,6 +85,7 @@ export default {
 					})
 
 					this.daycares = responseData.filter((item) => { return item.dayCareName })
+					console.log('daycares', this.daycares)
 				})
 				.catch((error) => {
 					throw new Error(error)
