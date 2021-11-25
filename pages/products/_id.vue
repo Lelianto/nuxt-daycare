@@ -12,7 +12,8 @@ export default {
 			userData: {},
 			userInformations: {},
 			distance: 0,
-			center: [-6.175392, 106.827153]
+			center: [-6.175392, 106.827153],
+			daycares: []
 		}
 	},
 	async mounted () {
@@ -56,13 +57,16 @@ export default {
 			}
 			const database = this.$fire.firestore
 			await database.collection('user_informations')
-				.doc(await this.$route.params.id)
 				.get()
 				.then(async (doc) => {
-					const response = await doc.data()
-					this.userInformations = response
-					const distance = this.calcCrow(this.center[0], this.center[1], response.latitude * 1, response.longitude * 1)
-					this.distance = distance
+					const response = await doc.docs
+					const responseData = []
+
+					response.forEach((data) => {
+						responseData.push(data.data())
+					})
+
+					this.daycares = responseData.filter((item) => { return item.dayCareName })
 				})
 				.catch((error) => {
 					throw new Error(error)

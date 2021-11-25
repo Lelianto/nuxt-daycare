@@ -38,7 +38,7 @@ export default {
 	],
 	fontawesome: {
 		icons: {
-			solid: ['faUser', 'faEye', 'faEyeSlash', 'faEnvelopeSquare', 'faPhone', 'faMapMarkerAlt']
+			solid: ['faUser', 'faEye', 'faEyeSlash', 'faEnvelopeSquare', 'faPhone', 'faMapMarkerAlt', 'faEdit']
 		}
 	},
 

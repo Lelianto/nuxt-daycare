@@ -37,7 +37,7 @@
         <div class="demonstration mt-3 mb-2">
           {{ userData.userType && userData.userType === 'seeker' ? 'Pesan Jadwal Layanan' : 'Buat Jadwal Layanan' }}
         </div>
-        <div class="w-full">
+        <div v-if="userData.userType && userData.userType === 'seeker'" class="w-full">
           <el-date-picker
             v-model="form.date1"
             class="date-size"
@@ -46,26 +46,49 @@
             placeholder="Pick a day"
           />
         </div>
+        <div v-else class="w-full">
+          <el-date-picker
+            v-model="inputDate"
+            class="date-size"
+            :picker-options="pickerOptions"
+            type="date"
+            placeholder="Pick a day"
+          />
+          <div class="text-base mb-2 mt-3">
+            Masukkan Kapasitas Anak Daycare
+          </div>
+          <el-input-number
+            v-model="numOfChildrens"
+            class="counter"
+            :min="1"
+            :max="10"
+            @change="handleChange"
+          />
+          <div class="text-base mb-2 mt-3">
+            Masukkan Biaya Layanan per Hari
+          </div>
+          <el-input v-model="servicePrice" class="w-full eye mb-3" type="number" placeholder="Masukkan Harga Layanan">
+            <template slot="prepend">
+              Rp
+            </template>
+          </el-input>
+          <el-button class="w-1/2 border-sm bg-gray-400 text-white cursor-pointer" type="info" @click="addSchedule">
+            Simpan Jadwal
+          </el-button>
+        </div>
       </div>
       <div class="flex flex-wrap justify">
         <div v-for="(date, index) in showDate" :key="`key-date-${index}`">
           <div class="bg-gray-500 text-xs rounded p-2 m-2 text-white">
-            {{ date }} <span class="cursor-pointer" @click="deleteDate(index)">&#x2715;</span>
+            {{ date }} - {{ form.capOfChildrens && form.capOfChildrens[index] }} - Rp{{ form.servicePrice && form.servicePrice[index] }} <span class="cursor-pointer" @click="deleteDate(index)">&#x2715;</span>
           </div>
         </div>
       </div>
-      <div v-if="userData.userType && userData.userType === 'owner'" class="text-base mb-2 mt-3">
-        Masukkan Biaya Layanan per Hari
-      </div>
-      <el-input v-if="userData.userType && userData.userType === 'owner'" v-model="form.servicePrice" class="w-full eye" type="number" placeholder="Masukkan Harga Layanan">
-        <template slot="prepend">
-          Rp
-        </template>
-      </el-input>
-      <div class="text-base mb-2 mt-3">
-        {{ userData.userType && userData.userType === 'seeker' ? 'Masukkan Jumlah Anak' : 'Masukkan Kapasitas Anak Daycare' }}
+      <div v-if="userData.userType && userData.userType === 'seeker'" class="text-base mb-2 mt-3">
+        Masukkan Jumlah Anak
       </div>
       <el-input-number
+        v-if="userData.userType && userData.userType === 'seeker'"
         v-model="form.numOfChildrens"
         class="counter mb-6"
         :min="1"
@@ -98,12 +121,16 @@ export default {
 				date1: '',
 				ownerDate: [],
 				address: '',
-				numOfChildrens: 1,
+				numOfChildrens: 0,
+				capOfChildrens: [],
+				servicePrice: [],
 				dayCarePics: '',
 				dayCareName: '',
-				servicePrice: 0,
 				error: ''
 			},
+			inputDate: '',
+			numOfChildrens: 0,
+			servicePrice: 0,
 			showDate: [],
 			pickerOptions: {
 				disabledDate (time) {
@@ -134,23 +161,13 @@ export default {
 	},
 	watch: {
 		'form.address' (next) {
-			console.log(next)
 			if (next.length > 20) {
 				this.getLongLat()
-			}
-		},
-		'form.date1' (next) {
-			if (next && this.userData.userType && this.userData.userType === 'owner') {
-				const formatDate = this.$moment(next).format('DD-MM-YYYY')
-				if (!this.showDate.includes(formatDate)) {
-					this.form.ownerDate.push(next)
-					this.showDate.push(formatDate)
-				}
-				this.form.date1 = ''
 			}
 		}
 	},
 	async mounted () {
+		await this.getUserInformations()
 		await this.getUserProfile()
 		this.getUserPosition()
 		if (!this.$route.params.id) {
@@ -159,6 +176,18 @@ export default {
 		}
 	},
 	methods: {
+		addSchedule () {
+			const formatDate = this.$moment(this.inputDate).format('DD-MM-YYYY')
+			if (!this.showDate.includes(formatDate)) {
+				this.form.ownerDate.push(this.inputDate)
+				this.form.capOfChildrens.push(this.numOfChildrens)
+				this.form.servicePrice.push(this.servicePrice)
+				this.showDate.push(formatDate)
+			}
+			this.inputDate = ''
+			this.numOfChildrens = 0
+			this.servicePrice = 0
+		},
 		getLocalPhoto (e) {
 			this.uploadDaycarePhoto(this.$route.params.id, e.target.files[0])
 		},
@@ -180,6 +209,8 @@ export default {
 		deleteDate (index) {
 			this.showDate.splice(index, 1)
 			this.form.ownerDate.splice(index, 1)
+			this.form.capOfChildrens.splice(index, 1)
+			this.form.servicePrice.splice(index, 1)
 		},
 		async updateDataSeeker () {
 			if (!this.$route.params.id) {
@@ -201,7 +232,7 @@ export default {
 						longitude: this.form.longitude,
 						ownerDate: this.form.ownerDate,
 						address: this.form.address,
-						numOfChildrens: this.form.numOfChildrens,
+						capOfChildrens: this.form.capOfChildrens,
 						dayCareName: this.form.dayCareName,
 						dayCarePics: this.form.dayCarePics,
 						servicePrice: this.form.servicePrice
@@ -237,7 +268,6 @@ export default {
 		async getLongLat () {
 			await this.$axios.$get(`https://nominatim.openstreetmap.org/search.php?q=${this.form.address}&format=jsonv2`)
 				.then((res) => {
-					console.log('res alamat', res)
 					if (res.length !== 0) {
 						this.form.longitude = res[0].lon
 						this.form.latitude = res[0].lat
@@ -270,6 +300,29 @@ export default {
 				.then(async (doc) => {
 					const response = await doc.data()
 					this.userData = response
+				})
+				.catch((error) => {
+					throw new Error(error)
+				})
+		},
+		async getUserInformations () {
+			if (!this.$route.params.id) {
+				this.logout()
+				return this.$router.push('/')
+			}
+			const database = this.$fire.firestore
+			await database.collection('user_informations')
+				.doc(await this.$route.params.id)
+				.get()
+				.then(async (doc) => {
+					const response = await doc.data()
+					if (response.address) {
+						if (this.userData.userType === 'owner') {
+							await this.$router.push(`/dashboard/${this.$route.params.id}`)
+						} else {
+							await this.$router.push(`/products/${this.$route.params.id}`)
+						}
+					}
 				})
 				.catch((error) => {
 					throw new Error(error)
