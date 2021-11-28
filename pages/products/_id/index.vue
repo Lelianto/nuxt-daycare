@@ -14,7 +14,7 @@
         <div class="font-semibold">
           Rp {{ daycare.servicePrice[0] | formatMoney }} / hari
         </div>
-        <el-button class="w-1/2 border-sm bg-gray-400 text-white cursor-pointer order-button absolute bottom-0 right-0" type="info">
+        <el-button class="w-1/2 border-sm bg-gray-400 text-white cursor-pointer order-button absolute bottom-0 right-0" type="info" @click="handleToDetail(daycare.id)">
           Pesan
         </el-button>
       </div>
@@ -42,6 +42,9 @@ export default {
 		await this.getUserPosition()
 	},
 	methods: {
+		handleToDetail (id) {
+			this.$router.push(`/products/${this.$route.params.id}/detail/${id}`)
+		},
 		async getUserPosition () {
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition((pos) => {
@@ -81,11 +84,12 @@ export default {
 					const responseData = []
 
 					response.forEach((data) => {
-						responseData.push(data.data())
+						const content = data.data()
+						content.id = data.id
+						responseData.push(content)
 					})
 
 					this.daycares = responseData.filter((item) => { return item.dayCareName })
-					console.log('daycares', this.daycares)
 				})
 				.catch((error) => {
 					throw new Error(error)
