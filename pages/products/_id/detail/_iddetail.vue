@@ -128,7 +128,17 @@ export default {
 	},
 	methods: {
 		orderAndPay () {
+			const condition = this.userInformations.capOfChildrens[this.choosenSchedule] - 1
 
+			if (condition === 0) {
+				this.userInformations.ownerDate.splice(this.choosenSchedule, 1)
+				this.userInformations.capOfChildrens.splice(this.choosenSchedule, 1)
+				this.userInformations.servicePrice.splice(this.choosenSchedule, 1)
+				this.updateSchedule()
+			} else {
+				this.userInformations.capOfChildrens[this.choosenSchedule] -= 1
+				this.updateSchedule()
+			}
 		},
 		handleChoosenSchedule (id) {
 			this.choosenSchedule = id

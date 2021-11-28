@@ -203,7 +203,6 @@ export default {
 			const storageRef = this.$fire.storage.ref('daycare').child(`${id}`).child(`${name}`)
 			await storageRef.getDownloadURL().then((response) => {
 				this.form.dayCarePics = response
-				console.log('response', response)
 			})
 		},
 		deleteDate (index) {
