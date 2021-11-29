@@ -1,6 +1,9 @@
 <template>
   <div class="w-full">
     <div class="lg:container mx-4 flex flex-col gap-2 py-2">
+      <div class="w-full flex justify-center">
+        <img class="w-2/3" src="@/assets/images/daycare-logo.png" alt="">
+      </div>
       <div class="w-full mt-5">
         <el-input v-model="form.fullName" placeholder="Masukkan Nama Lengkap" class="w-full eye">
           <template slot="prepend">
@@ -69,7 +72,7 @@
           {{ form.error }}
         </div>
         <div class="text-left mt-3 text-base text-blue-800">
-          <span class="cursor-pointer" @click="$router.push('/register')">
+          <span class="cursor-pointer" @click="$router.push('/')">
             Masuk
           </span>
         </div>

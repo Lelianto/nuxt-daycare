@@ -22,7 +22,7 @@
           </div>
         </div>
       </div>
-      <div v-if="choosenSchedule" class="mb-6">
+      <div v-if="choosenSchedule !== null" class="mb-6">
         <el-input v-model="list.name" class="w-full mt-3" :placeholder="userData.userType && userData.userType === 'seeker' ? 'Masukkan Lokasi Pencarian Daycare' : 'Masukkan Lokasi Daycare'">
           <template slot="prepend">
             Nama Anak
@@ -39,7 +39,7 @@
           placeholder="Pick a day"
         />
       </div>
-      <el-button class="w-full border-sm bg-gray-400 text-white cursor-pointer" type="info" @click="orderAndPay">
+      <el-button class="w-full border-sm bg-gray-400 text-white cursor-pointer" type="info" @click="postNewTransaction">
         Pesan & Bayar
       </el-button>
     </div>
@@ -92,7 +92,7 @@ export default {
 			choosenSchedule: null,
 			list: {
 				name: '',
-				list: ''
+				date: ''
 			},
 			pickerOptionsBirthdate: {
 				disabledDate (time) {
@@ -138,6 +138,36 @@ export default {
 			} else {
 				this.userInformations.capOfChildrens[this.choosenSchedule] -= 1
 				this.updateSchedule()
+			}
+		},
+		async postNewTransaction () {
+			const condition = this.userInformations.capOfChildrens[this.choosenSchedule] - 1
+			if (condition >= 0) {
+				try {
+					const data = {
+						userId: this.$route.params.id,
+						daycareId: this.$route.params.iddetail,
+						date: this.userInformations.ownerDate[this.choosenSchedule],
+						price: this.userInformations.servicePrice[this.choosenSchedule],
+						child: {
+							name: this.list.name,
+							birthdate: this.list.date
+						},
+						status: 'booked'
+					}
+					const database = this.$fire.firestore
+					await database.collection('transactions')
+						.doc(this.$route.params.id)
+						.collection('details')
+						.doc(`${new Date().getTime()}`)
+						.set(data)
+						.then(async () => {
+							this.orderAndPay()
+							await this.$router.push(`/history/${this.$route.params.id}`)
+						})
+				} catch (e) {
+					this.form.error = 'Terjadi kesalahan sistem, silakan perbarui halaman'
+				}
 			}
 		},
 		handleChoosenSchedule (id) {
