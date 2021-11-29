@@ -11,10 +11,10 @@
               Menu<i class="el-icon-arrow-down el-icon--right" />
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="products">
+              <el-dropdown-item v-if="userData.userType && userData.userType==='seeker'" command="products">
                 Produk
               </el-dropdown-item>
-              <el-dropdown-item command="history">
+              <el-dropdown-item v-if="userData.userType && userData.userType==='seeker'" command="history">
                 Riwayat
               </el-dropdown-item>
               <el-dropdown-item command="logout">
@@ -33,9 +33,28 @@
 export default {
 	name: 'Default',
 	data: () => {
-		return {}
+		return {
+			userData: {}
+		}
 	},
 	methods: {
+		async getUserProfile () {
+			if (!this.$route.params.id) {
+				this.logout()
+				return this.$router.push('/')
+			}
+			const database = this.$fire.firestore
+			await database.collection('users')
+				.doc(await this.$route.params.id)
+				.get()
+				.then(async (doc) => {
+					const response = await doc.data()
+					this.userData = response
+				})
+				.catch((error) => {
+					throw new Error(error)
+				})
+		},
 		handleCommand (command) {
 			if (command === 'logout') {
 				this.logout()

@@ -156,7 +156,8 @@ export default {
 						picker.$emit('pick', date)
 					}
 				}]
-			}
+			},
+			addressFound: false
 		}
 	},
 	watch: {
@@ -168,7 +169,6 @@ export default {
 	},
 	async mounted () {
 		await this.getUserInformations()
-		await this.getUserProfile()
 		this.getUserPosition()
 		if (!this.$route.params.id) {
 			this.logout()
@@ -299,6 +299,13 @@ export default {
 				.then(async (doc) => {
 					const response = await doc.data()
 					this.userData = response
+					if (this.addressFound) {
+						if (this.userData.userType === 'owner') {
+							await this.$router.push(`/dashboard/${this.$route.params.id}`)
+						} else {
+							await this.$router.push(`/products/${this.$route.params.id}`)
+						}
+					}
 				})
 				.catch((error) => {
 					throw new Error(error)
@@ -315,13 +322,8 @@ export default {
 				.get()
 				.then(async (doc) => {
 					const response = await doc.data()
-					if (response && response.address) {
-						if (this.userData.userType === 'owner') {
-							await this.$router.push(`/dashboard/${this.$route.params.id}`)
-						} else {
-							await this.$router.push(`/products/${this.$route.params.id}`)
-						}
-					}
+					this.addressFound = response && response.address
+					await this.getUserProfile()
 				})
 				.catch((error) => {
 					throw new Error(error)
