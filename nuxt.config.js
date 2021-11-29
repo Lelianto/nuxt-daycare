@@ -44,7 +44,6 @@ export default {
 		'@nuxtjs/eslint-module',
 		// https://go.nuxtjs.dev/tailwindcss
 		'@nuxtjs/tailwindcss',
-		'@nuxtjs/firebase',
 		'@nuxtjs/fontawesome',
 		['@nuxtjs/moment', { locales: ['id'] }]
 	],
@@ -58,6 +57,7 @@ export default {
 	modules: [
 		// https://go.nuxtjs.dev/axios
 		'@nuxtjs/axios',
+		'@nuxtjs/firebase',
 		// https://go.nuxtjs.dev/pwa
 		'@nuxtjs/pwa',
 		['nuxt-leaflet', { /* module options */ }],
