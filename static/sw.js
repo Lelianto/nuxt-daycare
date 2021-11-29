@@ -7,7 +7,7 @@ self.addEventListener('install', function (e) {
 })
 
 self.addEventListener('activate', function (e) {
-	self.registration.register()
+	self.registration.unregister()
 		.then(function () {
 			return self.clients.matchAll()
 		})
