@@ -1,6 +1,6 @@
 <template>
   <div v-if="daycares.length !== 0" class="w-full px-2 mt-6">
-    <div v-for="(daycare, index) in daycares" :key="`key-product-${index}`" class="lg:container mx-4 flex flex-row gap-2 p-2 border-2 rounded-md">
+    <div v-for="(daycare, index) in daycares" :key="`key-product-${index}`" class="lg:container mx-4 flex flex-row gap-2 p-2 border-2 rounded-md mb-6">
       <div class="box-photo-product">
         <img :src="daycare.dayCarePics" alt="">
       </div>
