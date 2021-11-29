@@ -39,7 +39,6 @@ export default {
 		// https://go.nuxtjs.dev/tailwindcss
 		'@nuxtjs/tailwindcss',
 		'@nuxtjs/firebase',
-		'@nuxtjs/pwa',
 		'@nuxtjs/fontawesome',
 		['@nuxtjs/moment', { locales: ['id'] }]
 	],
@@ -54,6 +53,7 @@ export default {
 		// https://go.nuxtjs.dev/axios
 		'@nuxtjs/axios',
 		// https://go.nuxtjs.dev/pwa
+		'@nuxtjs/pwa',
 		['nuxt-leaflet', { /* module options */ }],
 		'@nuxtjs/axios'
 	],
