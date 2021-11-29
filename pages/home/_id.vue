@@ -315,7 +315,7 @@ export default {
 				.get()
 				.then(async (doc) => {
 					const response = await doc.data()
-					if (response.address) {
+					if (response && response.address) {
 						if (this.userData.userType === 'owner') {
 							await this.$router.push(`/dashboard/${this.$route.params.id}`)
 						} else {
