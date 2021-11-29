@@ -44,6 +44,7 @@ export default {
 		'@nuxtjs/eslint-module',
 		// https://go.nuxtjs.dev/tailwindcss
 		'@nuxtjs/tailwindcss',
+		'@nuxtjs/firebase',
 		'@nuxtjs/fontawesome',
 		['@nuxtjs/moment', { locales: ['id'] }]
 	],
@@ -57,7 +58,6 @@ export default {
 	modules: [
 		// https://go.nuxtjs.dev/axios
 		'@nuxtjs/axios',
-		'@nuxtjs/firebase',
 		// https://go.nuxtjs.dev/pwa
 		'@nuxtjs/pwa',
 		['nuxt-leaflet', { /* module options */ }],
@@ -71,8 +71,20 @@ export default {
 
 	// PWA module configuration: https://go.nuxtjs.dev/pwa
 	pwa: {
-		manifest: {
-			lang: 'en'
+		// disable the modules you don't need
+		meta: false,
+		icon: false,
+		// if you omit a module key form configuration sensible defaults will be applied
+		// manifest: false,
+
+		workbox: {
+			importScripts: [
+				// ...
+				'/firebase-auth-sw.js'
+			],
+			// by default the workbox module will not install the service worker in dev environment to avoid conflicts with HMR
+			// only set this true for testing and remember to always clear your browser cache in development
+			dev: false
 		}
 	},
 
